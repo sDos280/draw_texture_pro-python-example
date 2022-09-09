@@ -3,7 +3,7 @@ from raylib.colors import *
 from pyray import *
 import math
 from enum import Enum, auto
-
+import cffi
 
 def CLAMP(VAL, MIN, MAX):
     return min(MAX, max(VAL, MIN))
@@ -113,14 +113,13 @@ def main():
 
     sampleSprite = load_texture("assets/kenney.png")
 
-    sourceCodeFont = load_font_ex("/assets/LiberationMono-Regular.ttf", fontSize, 0, 250)
+    sourceCodeFont = load_font_ex("/assets/LiberationMono-Regular.ttf", fontSize, 0, 250)  #sourceCodeFont = load_font_ex("/assets/LiberationMono-Regular.ttf", fontSize, 0, 250)
     # sourceCodeFont = load_font_ex("/assets/Uchen-Regular.ttf", fontSize, 0, 250)
 
     gui_set_font(sourceCodeFont)
     for j in range(21):
-        codePreviewHighlight.append(BEIGE)
-        codePreviewHighlight[j] = list(codePreviewHighlight[j])
-        codePreviewHighlight[j][3] = 0
+        codePreviewHighlight.append(Color(BEIGE[0], BEIGE[1], BEIGE[2], BEIGE[3]))
+        codePreviewHighlight[j].a = 0
 
     previewElementPre = load_render_texture(
         int(elementRender.width - 20),
@@ -139,7 +138,7 @@ def main():
 
         draw_element_borders()
         setup_difference()
-        # DrawUI()
+        #draw_UI()
         resolve_mouse_state()
         draw_code_display()
 
@@ -202,12 +201,23 @@ def setup_difference():
     predtpRotation = dtpRotation
 
 
-def DrawUI():
+def draw_UI():
     xOffset: int = 60
     yOffset: int = 40
-    SLIDER_SPACING: int = 10
-    SLIDER_HEIGHT: int = 20
-    SLIDER_WIDTH: int = 200
+    sliderSpacing: int = 10
+    sliderHeight: int = 20
+    sliderWidth: int = 200
+
+    GuiLabel(
+        Rectangle(
+            elementSliders.x + xOffset - 25,
+            elementSliders.y + yOffset - sliderHeight - (sliderSpacing / 2),
+            sliderWidth,
+            sliderHeight
+        ),
+        cffi.FFI.new("char[6]", "Source")
+
+    )
 
 
 def resolve_mouse_state():
@@ -300,8 +310,8 @@ def draw_code_display():
     codePreviewArray[18] = f"			{int(dtpRotation)}, // Rotation"
 
     for j in range(21):
-        if codePreviewHighlight[j][3] > 0:
-            codePreviewHighlight[j][3] -= 5
+        if codePreviewHighlight[j].a > 0:
+            codePreviewHighlight[j].a -= 5
 
     for b in range(21):
         tempColor = BLACK
